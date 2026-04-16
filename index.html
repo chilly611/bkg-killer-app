@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BKG Killer App Command Center v3</title>
-    <!-- build: bkg-killer-app-v3-2026-04-15 -->
+    <!-- build: bkg-killer-app-v3.1-2026-04-15 -->
 
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -535,13 +535,6 @@
 
         .step-content {
             padding: 0 16px 16px;
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease;
-        }
-
-        .step-card.expanded .step-content {
-            max-height: 1000px;
         }
 
         .step-input-group {
@@ -2300,6 +2293,18 @@
                         const state = currentProject.stepStates[stepId] || {};
                         isCompleted = (state.city && state.state) || (value && value.split('|')[0] && value.split('|')[1]);
                         break;
+                    case 'file_upload':
+                        isCompleted = !!value;
+                        break;
+                    case 'select':
+                        isCompleted = !!value;
+                        break;
+                    case 'multi_select':
+                        isCompleted = Array.isArray(value) && value.length > 0;
+                        break;
+                    case 'template_chooser':
+                        isCompleted = Array.isArray(value) && value.length > 0;
+                        break;
                     case 'checklist':
                         isCompleted = value === true;
                         break;
@@ -2355,7 +2360,13 @@
                                 <select
                                     className="project-dropdown"
                                     value={currentProjectId}
-                                    onChange={e => setCurrentProjectId(e.target.value)}
+                                    onChange={e => {
+                                        if (e.target.value === '__new__') {
+                                            createProject();
+                                        } else {
+                                            setCurrentProjectId(e.target.value);
+                                        }
+                                    }}
                                 >
                                     {projects.map(p => {
                                         const projSteps = QUESTS_DATA.reduce((sum, q) => sum + q.steps.length, 0);
@@ -2367,9 +2378,8 @@
                                             </option>
                                         );
                                     })}
-                                    <option value="">➕ New Project</option>
+                                    <option value="__new__">+ New Project</option>
                                 </select>
-                                {currentProjectId === '' && (() => { createProject(); setCurrentProjectId(projects[projects.length - 1].id); })()}
                             </div>
                             <button className="new-project-btn" onClick={createProject}>
                                 ➕ New
