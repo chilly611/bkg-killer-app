@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BKG Killer App Command Center v3</title>
-    <!-- build: bkg-killer-app-v3.1-2026-04-15 -->
+    <!-- build: bkg-killer-app-v3.2-2026-04-16 -->
 
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -1095,6 +1095,40 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Trade Selection */
+        .trade-select { min-height: 100vh; background: var(--bg-cream); position: relative; overflow: auto; padding: 60px 40px; }
+        .trade-select::before { content:''; position:absolute; inset:0; background-image: linear-gradient(0deg, rgba(43,108,176,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(43,108,176,0.04) 1px, transparent 1px); background-size:40px 40px; pointer-events:none; }
+        .trade-select-content { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; text-align: center; }
+        .trade-select h1 { font-size: 36px; font-weight: 800; color: var(--ink); margin-bottom: 8px; }
+        .trade-select p { font-size: 16px; color: var(--ink-light); margin-bottom: 40px; }
+        .trade-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; text-align: left; margin-bottom: 32px; }
+        .trade-card { padding: 20px; background: var(--bg-card); border: 2px solid var(--border-subtle); border-radius: 12px; cursor: pointer; transition: all 0.2s ease; position: relative; }
+        .trade-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .trade-card.selected { border-color: var(--green); background: rgba(29,158,117,0.04); box-shadow: 0 0 0 3px rgba(29,158,117,0.15); }
+        .trade-card-emoji { font-size: 28px; margin-bottom: 8px; }
+        .trade-card-name { font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+        .trade-card-desc { font-size: 12px; color: var(--ink-muted); line-height: 1.4; }
+        .trade-card.selected::after { content: '✓'; position: absolute; top: 8px; right: 12px; color: var(--green); font-weight: 700; font-size: 18px; }
+
+        .state-selector { margin-bottom: 32px; }
+        .state-selector select { padding: 12px 20px; font-size: 15px; font-family: 'Inter', sans-serif; border: 2px solid var(--border); border-radius: 8px; background: var(--bg-card); color: var(--ink); min-width: 250px; }
+
+        .trade-cta { display: inline-flex; align-items: center; gap: 10px; padding: 16px 36px; background: var(--accent); color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.2s; }
+        .trade-cta:hover { background: #245BA4; transform: translateY(-2px); }
+        .trade-cta:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+        /* Settings panel */
+        .settings-gear { background: none; border: none; font-size: 20px; cursor: pointer; padding: 4px 8px; border-radius: 6px; transition: background 0.2s; }
+        .settings-gear:hover { background: var(--bg-hover); }
+        .settings-dropdown { position: absolute; top: 100%; right: 0; background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; box-shadow: var(--shadow-lg); z-index: 100; min-width: 320px; text-align: left; }
+        .settings-dropdown label { font-size: 12px; font-weight: 600; color: var(--ink); display: block; margin-bottom: 6px; }
+        .settings-dropdown input { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; font-family: 'IBM Plex Mono', monospace; margin-bottom: 8px; }
+        .settings-dropdown .settings-note { font-size: 11px; color: var(--ink-muted); font-style: italic; margin-top: 4px; }
+        .settings-save-btn { padding: 8px 16px; background: var(--accent); color: white; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; margin-top: 4px; }
+
+        /* Trade badge in header */
+        .trade-badge { display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: rgba(43,108,176,0.08); border: 1px solid rgba(43,108,176,0.15); border-radius: 8px; font-size: 12px; font-weight: 600; color: var(--accent); }
     </style>
 </head>
 <body>
@@ -1129,6 +1163,7 @@
                         id: 's1-1',
                         label: 'Run client payment history check',
                         type: 'analysis_result',
+                        promptId: 'risk-payment-history',
                         analysisTitle: 'Payment History Analysis',
                         analysisResult: 'Client has paid 12 of 14 invoices on time (86%). Average payment delay: 4.2 days. Two late payments were during Q4 2024 (holiday season). Risk: LOW. Suggested approach: Standard net-30 terms.',
                     },
@@ -1142,6 +1177,7 @@
                         id: 's1-3',
                         label: 'Check material availability',
                         type: 'analysis_result',
+                        promptId: 'risk-material-availability',
                         analysisTitle: 'Material Availability Check',
                         analysisResult: 'Primary materials available. Heads up: Lumber (2×6 SPF) has 2-week lead time at current supplier. Consider pre-ordering. No backorders flagged.',
                     },
@@ -1156,6 +1192,7 @@
                         id: 's1-5',
                         label: 'Calculate risk-adjusted markup',
                         type: 'analysis_result',
+                        promptId: 'risk-markup-calculation',
                         analysisTitle: 'Risk-Adjusted Markup',
                         analysisResult: 'Based on inputs: Scope clarity 7/10, Payment history A, Material risk LOW, Crew capacity ADEQUATE. Recommended markup: 22-26% (standard range for this risk profile). Consider 28% if timeline is aggressive.',
                     },
@@ -1286,6 +1323,7 @@
                         id: 's5-1',
                         label: 'IBC/IRC structural requirements verified',
                         type: 'analysis_result',
+                        promptId: 'compliance-structural',
                         analysisTitle: 'Structural Code Check',
                         analysisResult: 'IBC Section 1607: Live loads verified for residential occupancy. IRC R602.3: Wall framing spacing compliant at 16" OC. No seismic design category upgrades required for this jurisdiction.',
                     },
@@ -1293,6 +1331,7 @@
                         id: 's5-2',
                         label: 'NEC electrical code reviewed',
                         type: 'analysis_result',
+                        promptId: 'compliance-electrical',
                         analysisTitle: 'Electrical Code Check',
                         analysisResult: 'NEC Article 210: Branch circuits compliant. GFCI protection required in kitchen, bath, garage, outdoor (210.8). AFCI required for bedrooms (210.12). Service panel sizing adequate at 200A.',
                     },
@@ -1356,6 +1395,7 @@
                         id: 's6-5',
                         label: 'Flag bottlenecks',
                         type: 'analysis_result',
+                        promptId: 'sequencing-bottlenecks',
                         analysisTitle: 'Sequencing Analysis',
                         analysisResult: 'Critical path identified: Demo → Framing → MEP → Drywall → Finish. Longest sequence: 8 weeks. Electrical has 2-week lead time for permit. Recommendation: Start electrical permitting during framing.',
                     },
@@ -1378,6 +1418,7 @@
                         id: 's7-2',
                         label: 'Calculate crew size',
                         type: 'analysis_result',
+                        promptId: 'crew-analysis',
                         analysisTitle: 'Crew Sizing Analysis',
                         analysisResult: 'Based on scope and timeline: Minimum 4-person crew, optimal 6. Peak demand during framing & MEP: 8 workers. Recommend staggered start for specialty trades.',
                     },
@@ -1390,6 +1431,7 @@
                         id: 's7-4',
                         label: 'Flag conflicts',
                         type: 'analysis_result',
+                        promptId: 'crew-conflicts',
                         analysisTitle: 'Resource Conflicts',
                         analysisResult: 'Lead electrician assigned to 2 concurrent projects weeks 4-6. Recommendation: Hire temp or adjust schedule.',
                     },
@@ -1397,6 +1439,7 @@
                         id: 's7-5',
                         label: 'Optimize labor',
                         type: 'analysis_result',
+                        promptId: 'crew-optimization',
                         analysisTitle: 'Labor Optimization',
                         analysisResult: 'Current plan: $180k labor. Optimized: $162k (10% savings via better sequencing). Trade-off: 1 week longer timeline.',
                     },
@@ -1525,6 +1568,7 @@
                         id: 's11-1',
                         label: 'Extract material list',
                         type: 'analysis_result',
+                        promptId: 'supply-materials',
                         analysisTitle: 'Material List Extraction',
                         analysisResult: 'From spec: 2×6 SPF framing (800 bf), drywall (4,200 sf), insulation (3,500 sf), roofing (2,400 sf), flooring (2,800 sf). Total weight estimate: 85 tons.',
                     },
@@ -1532,6 +1576,7 @@
                         id: 's11-2',
                         label: 'Find suppliers',
                         type: 'analysis_result',
+                        promptId: 'supply-suppliers',
                         analysisTitle: 'Supplier Search',
                         analysisResult: 'Local lumberyard: in-stock, 5% discount. National: 2-3% discount, free delivery over $5k. Specialty flooring: 1 supplier within 50 miles. Recommend splitting orders for best pricing.',
                     },
@@ -1539,6 +1584,7 @@
                         id: 's11-3',
                         label: 'Compare pricing',
                         type: 'analysis_result',
+                        promptId: 'supply-pricing',
                         analysisTitle: 'Price Comparison',
                         analysisResult: 'Scenario A (all local): $32k. Scenario B (mixed): $29.8k (7% savings). Scenario C (all national): $28.5k (11% savings, 2-week delay).',
                     },
@@ -1546,6 +1592,7 @@
                         id: 's11-4',
                         label: 'Flag lead times',
                         type: 'analysis_result',
+                        promptId: 'supply-leadtimes',
                         analysisTitle: 'Lead Time Alert',
                         analysisResult: 'Custom flooring: 4-week lead. Specialty doors: 3 weeks. Standard lumber: in-stock. Recommend pre-ordering specialty items within 2 weeks.',
                     },
@@ -1653,6 +1700,7 @@
                         id: 's14-4',
                         label: 'Review forecast',
                         type: 'analysis_result',
+                        promptId: 'weather-forecast',
                         analysisTitle: '10-Day Weather Forecast',
                         analysisResult: 'This week: 60-70°F, dry. Days 5-6: Rain 60% chance. Days 7-10: Clear. Recommend: Schedule roofing days 2-4, interior work days 5-6, exterior finish days 7-10.',
                     },
@@ -1754,6 +1802,7 @@
                         id: 's17-2',
                         label: 'Review categorization',
                         type: 'analysis_result',
+                        promptId: 'expense-categorization',
                         analysisTitle: 'Expense Categorization',
                         analysisResult: 'Uploaded 24 receipts. Categorized: Materials $8,200, Labor $3,400, Equipment $1,200, Other $620. Total: $13,420. Any miscategorizations?',
                     },
@@ -1766,6 +1815,7 @@
                         id: 's17-4',
                         label: 'Check dashboard',
                         type: 'analysis_result',
+                        promptId: 'expense-dashboard',
                         analysisTitle: 'Budget vs. Actual',
                         analysisResult: 'Budget: $28,500. Spent to date: $13,420 (47%). On track. Labor overages: +2% (acceptable). Materials: -1% (under budget).',
                     },
@@ -1811,6 +1861,7 @@
                         id: 's18-5',
                         label: 'Review quotes',
                         type: 'analysis_result',
+                        promptId: 'contacts-quotes',
                         analysisTitle: 'Quote Summary',
                         analysisResult: 'Received 12 quotes for 6 trades. Average response time: 2.1 days. 3 quotes above budget (request revision). 4 quotes excellent (follow up).',
                     },
@@ -1867,6 +1918,7 @@
                         id: 's20-2',
                         label: 'Cost delta',
                         type: 'analysis_result',
+                        promptId: 'co-cost-delta',
                         analysisTitle: 'Cost Impact Analysis',
                         analysisResult: 'Change: Add HVAC zone control system. Materials: $3,200. Labor: $1,400. Contingency (10%): $460. Total CO amount: $5,060.',
                     },
@@ -1874,6 +1926,7 @@
                         id: 's20-3',
                         label: 'Schedule impact',
                         type: 'analysis_result',
+                        promptId: 'co-schedule-impact',
                         analysisTitle: 'Schedule Impact',
                         analysisResult: 'Installation requires 3 additional days during MEP phase. Current timeline: Week 4. No impact on completion date (slack available).',
                     },
@@ -1881,6 +1934,7 @@
                         id: 's20-4',
                         label: 'Generate CO doc',
                         type: 'analysis_result',
+                        promptId: 'co-document',
                         analysisTitle: 'Change Order Document',
                         analysisResult: 'CO#001 generated. Format: Project info, detailed change description, cost breakdown, payment terms, approval lines, schedule note. Ready for client signature.',
                     },
@@ -1907,6 +1961,7 @@
                         id: 's21-1',
                         label: 'Calculate % complete',
                         type: 'analysis_result',
+                        promptId: 'draw-calculate',
                         analysisTitle: 'Project Completion Status',
                         analysisResult: 'Completed: Demo (100%), Framing (100%), MEP rough (85%). Overall: 62% complete. Eligible for Draw #3: $18,900.',
                     },
@@ -1914,6 +1969,7 @@
                         id: 's21-2',
                         label: 'Auto-fill form',
                         type: 'analysis_result',
+                        promptId: 'draw-calculate',
                         analysisTitle: 'Draw Form Auto-Fill',
                         analysisResult: 'Draw #3 form pre-filled: Completion %, eligible amount, project dates, contractor info. Requires review & signature only.',
                     },
@@ -2023,6 +2079,7 @@
                         id: 's24-2',
                         label: 'Upload for detection',
                         type: 'analysis_result',
+                        promptId: 'punch-detection',
                         analysisTitle: 'Punch List Detection',
                         analysisResult: 'Analyzed 47 photos. Detected 12 potential punch items: 3 drywall gaps, 2 trim misalignments, 4 paint issues, 3 outlet cover gaps. See detail view.',
                     },
@@ -2158,6 +2215,123 @@
         ];
 
         // ============================================
+        // ANALYSIS PROMPTS
+        // ============================================
+
+        const ANALYSIS_PROMPTS = {
+          'risk-payment-history': {
+            systemPrompt: `You are a construction credit analyst. Your job is to assess client payment risk based on invoice history and payment patterns. Analyze the provided payment records for timeliness, dispute frequency, payment method consistency, and creditworthiness indicators. Flag red flags: chronic late payments (30+ days), disputes, partial payments, or pattern deterioration. Rate overall risk as LOW / MEDIUM / HIGH with specific reasoning tied to the data provided. If information is insufficient, ask what additional details would help (e.g., payment terms, dispute amounts, trend over time).`,
+            inputPlaceholder: `Paste invoices, payment records, or payment history. Example: "Invoice #2401: $15,000 issued 3/1, paid 3/28 (late). Invoice #2402: $18,500 issued 3/15, paid 3/15 (on time). 2 disputed invoices in past year totaling $8,200."`,
+            inputLabel: 'Client Payment History'
+          },
+          'risk-material-availability': {
+            systemPrompt: `You are a construction supply chain expert. Your job is to assess material availability risk for a given project. Review the material list or takeoff and identify items with known availability challenges: long lead times (60+ days), supply chain volatility, seasonal scarcity, or current backorders. Categorize materials by availability risk (Green / Yellow / Red). For high-risk items, suggest alternatives or pre-ordering strategies. If the material list is incomplete, ask for specifics (project type, location, timeline).`,
+            inputPlaceholder: `List materials needed or paste material takeoff. Example: "Structural steel (wide flange beams, 40 tons), electrical panels (400A main), roofing (standing seam metal), exterior doors (8x custom aluminum)." Include quantities if known.`,
+            inputLabel: 'Materials Needed / Takeoff'
+          },
+          'risk-markup-calculation': {
+            systemPrompt: `You are a construction estimator specializing in risk-adjusted pricing. Your job is to recommend a markup percentage based on project risk factors. Evaluate: scope clarity (well-defined vs. vague), client payment history (strong vs. poor), timeline (realistic vs. compressed), market conditions (stable vs. volatile), and trade complexity (standard vs. specialized). Provide a markup range (e.g., 15-20%) with specific reasoning tied to each risk factor. If critical factors are missing, ask clarifying questions.`,
+            inputPlaceholder: `Describe overall project risk factors. Example: "Residential remodel, scope mostly clear but client wants options, paid on-time before, 8-week timeline, market is stable, mostly standard framing and finishing."`,
+            inputLabel: 'Project Risk Factors'
+          },
+          'compliance-structural': {
+            systemPrompt: `You are a code compliance expert in structural systems (IBC/IRC). Your job is to identify applicable code sections for the described structural scope. Reference the International Building Code (IBC) or International Residential Code (IRC) depending on project type. For each scope element, cite specific code sections and key requirements: load paths, bearing, bracing, foundation types, framing methods, etc. Flag items requiring structural engineering review or special inspections. Keep citations specific and actionable. If scope is vague, ask for clarification on building type, occupancy, and size.`,
+            inputPlaceholder: `Describe structural scope. Example: "2-story residential wood frame, addition to existing house, new foundation slab on grade, 28' clear-span truss roof, removing interior bearing wall."`,
+            inputLabel: 'Structural Scope Description'
+          },
+          'compliance-electrical': {
+            systemPrompt: `You are a National Electrical Code (NEC) compliance specialist. Your job is to identify applicable NEC articles and requirements for the described electrical scope. Reference the current NEC code. For each scope element, cite specific articles and sections: panel sizing, GFCI/AFCI requirements, outlet spacing, wire sizing, disconnect means, grounding, etc. Flag items requiring licensed electrician involvement or special permitting. Format output as scope element → applicable NEC section(s) → requirement. If scope is unclear, ask for details on building type, service size, and load characteristics.`,
+            inputPlaceholder: `Describe electrical scope. Example: "Kitchen renovation with 6 new circuits, 2 new 240V outlets (range, dryer), adding exterior outlet, upgrading main panel from 100A to 200A."`,
+            inputLabel: 'Electrical Scope Description'
+          },
+          'sequencing-bottlenecks': {
+            systemPrompt: `You are a construction scheduler and project manager. Your job is to identify critical path bottlenecks in the described sequence. Analyze phase durations, dependencies, and labor constraints. Identify: phases on critical path, longest lead-time activities, resource conflicts, weather dependencies, and permitting delays. For each bottleneck, suggest practical optimizations: parallel activities, pre-fab components, resource reallocation, or timeline buffers. Flag risks that could cascade to other phases. If the schedule is incomplete, ask for clarification on dependencies and durations.`,
+            inputPlaceholder: `Describe phases, durations, and dependencies. Example: "Demolition (1 week) → Foundation (3 weeks, weather-dependent) → Framing (4 weeks) → MEP rough-in (2 weeks, depends on framing) → Drywall (2 weeks) → Finishing (3 weeks). Main crew is 5 people."`,
+            inputLabel: 'Project Schedule & Phases'
+          },
+          'crew-analysis': {
+            systemPrompt: `You are a construction labor productivity expert. Your job is to recommend optimal crew size for the described scope. Use industry productivity benchmarks (e.g., framing: 0.8-1.2 labor-hours per sq ft; drywall: 0.15-0.25 lh/sf; masonry: 2-4 lh per 100 sq ft). Factor in project type, complexity, site constraints, and timeline. Recommend crew size (e.g., "4-person crew") with estimated weekly production rate. Identify tasks that need specialist trades vs. general labor. If data is incomplete, ask for clarification on scope detail, site access, or trade-specific constraints.`,
+            inputPlaceholder: `Provide scope, size, timeline, and trade type. Example: "Residential framing addition, 2,000 sf, 4-week schedule, standard stick-frame construction, good site access."`,
+            inputLabel: 'Scope Details (size, type, timeline)'
+          },
+          'crew-conflicts': {
+            systemPrompt: `You are a construction crew scheduler. Your job is to flag scheduling conflicts and inefficiencies in the described crew assignments. Identify: overlapping trades (crew collision), underutilized days, idle periods, long commutes between job sites, and phase sequencing issues that leave crew waiting. For each conflict, recommend a solution (adjust phase timing, stagger crews, resequence work, or plan concurrent activities). Provide a revised schedule that minimizes downtime. If schedule details are missing, ask for clarification on crew roles, site locations, or phase timings.`,
+            inputPlaceholder: `Describe current schedule and crew assignments. Example: "Week 1: Foundation crew (4 people) Mon-Fri. Week 2-3: Framing crew (same 4 people) Mon-Sat. Week 4: Electrical crew (2 new people) needs to start rough-in, but framers aren't done. MEP scheduled only 2 days/week."`,
+            inputLabel: 'Current Job Schedule & Crew Assignments'
+          },
+          'crew-optimization': {
+            systemPrompt: `You are a construction labor cost optimizer. Your job is to analyze the provided crew roster and assignments to minimize idle time and labor cost. Review crew rates, phase assignments, and actual productivity. Identify: underutilized crew members, phases with mismatched skill levels (overqualified/underqualified), opportunities to redeploy crew to parallel work, and cost savings from reallocation. Recommend specific crew changes (e.g., "move one framer to interior finishing during week 4-5"). Estimate labor cost savings and productivity impact. If crew details are sparse, ask for wage rates, skill levels, or historical productivity data.`,
+            inputPlaceholder: `Provide crew roster, rates, and phase assignments. Example: "Crew: Foreman ($55/hr), 3 framers ($40/hr), 1 general laborer ($28/hr). Week 1-4: all on framing. Week 4-6: Foreman + 1 framer on MEP, other 2 on interior finishing."`,
+            inputLabel: 'Crew Roster & Phase Assignments'
+          },
+          'supply-materials': {
+            systemPrompt: `You are a construction takeoff specialist. Your job is to extract and organize a structured material list from the provided estimate or scope description. Create a material list organized by CSI division (03 Concrete, 04 Masonry, 06 Wood/Plastic, etc.) with: item description, unit (lf, sf, tons, ea), quantity, and any notes on specs or alternatives. Flag items that need clarification (e.g., "how many outlets?" or "standard or fire-rated drywall?"). Format as a scannable table or bulleted list. If the source document is incomplete, ask for missing details on specifications or quantities.`,
+            inputPlaceholder: `Paste your estimate or describe scope. Example: "2,500 sf framing addition. 1,200 sf exterior wall sheathing, 1,500 sf roof sheathing. 8x8 posts at foundation corners, 2x8 rim board around perimeter. Standing seam metal roofing, 1,500 sf."`,
+            inputLabel: 'Estimate or Scope Description'
+          },
+          'supply-suppliers': {
+            systemPrompt: `You are a construction procurement consultant. Your job is to recommend supplier sources and what to evaluate when requesting quotes. Based on the material list and contractor location, identify supplier types (lumber yards, steel distributors, concrete suppliers, mechanical wholesalers, etc.) that typically stock the items listed. For each supplier type, suggest key questions to ask: delivery lead times, minimum order quantities, pricing structure, delivery fees, rush premiums, and payment terms. Provide a vendor outreach strategy. Note: This analysis is based on typical supplier categories, not real-time supplier databases.`,
+            inputPlaceholder: `Provide location and material list. Example: "Location: Denver, CO. Materials: structural steel (40 tons), electrical panel (400A), copper wire, standing seam roofing (1,500 sf), concrete (200 cubic yards)."`,
+            inputLabel: 'Location & Material List'
+          },
+          'supply-pricing': {
+            systemPrompt: `You are a construction procurement analyst. Your job is to compare supplier quotes and identify the best value option. Analyze quotes by: unit price, total cost, delivery terms, lead time, minimum orders, and payment terms. Calculate best value (not just lowest price) by factoring in reliability, logistics, and terms. Flag pricing anomalies (suspiciously low, possible errors). Create a comparison matrix showing supplier, price per unit, total, lead time, and recommendation. If quote details are sparse, ask for specifics (FOB point, payment terms, warranty).`,
+            inputPlaceholder: `Paste quotes from multiple suppliers. Example: "Supplier A: 40 tons structural steel @ $800/ton = $32k, delivered in 6 weeks, 10% deposit. Supplier B: 40 tons @ $750/ton = $30k, 8-week lead, COD. Supplier C: 40 tons @ $825/ton = $33k, 4 weeks, pay on delivery."`,
+            inputLabel: 'Supplier Quotes'
+          },
+          'supply-leadtimes': {
+            systemPrompt: `You are a construction supply chain planner. Your job is to identify long lead-time items and recommend pre-ordering strategy. Using industry knowledge of material lead times, flag items that commonly have extended delivery: structural steel (6-10 weeks), specialty electrical components (4-8 weeks), custom doors/windows (6-12 weeks), mechanical equipment (4-6 weeks), certain finishes (8-10 weeks). For each flagged item, recommend the latest order date relative to installation date. Consider seasonal demand, market conditions, and current supply chain volatility. If lead times are critical to the schedule, flag it for expediting. Ask for clarification if installation dates are unclear.`,
+            inputPlaceholder: `Provide material list. Example: "Structural steel: 40 tons wide flange. Custom aluminum storefront: 8 units. Mechanical rooftop unit (5-ton): 1 unit. MEP equipment: 3-ton AC, water heater, panel."`,
+            inputLabel: 'Material List'
+          },
+          'weather-forecast': {
+            systemPrompt: `You are a construction weather logistics specialist. Your job is to assess how weather impacts the described upcoming work and recommend scheduling adjustments. Consider: precipitation delays (foundation work, concrete), temperature requirements (concrete cure, adhesives, staining), wind limits (roofing, glazing), and seasonal issues (mud season, frost). For the described location and timeline, recommend optimal window for outdoor phases, suggest weather contingencies, and identify tasks that need weather protection. Provide decision rules (e.g., "hold roofing if rain >30% forecast"). If location or detailed work scope is missing, ask for clarification.`,
+            inputPlaceholder: `Describe location, outdoor work scope, and timing. Example: "Denver, CO. Roofing and exterior cladding installation scheduled March 15-April 15. Foundation concrete pour scheduled March 10. Exterior painting in late April."`,
+            inputLabel: 'Location & Upcoming Outdoor Work'
+          },
+          'expense-categorization': {
+            systemPrompt: `You are a construction accounting specialist. Your job is to categorize expenses to CSI divisions and flag any miscategorizations. For each expense provided, assign it to the correct CSI division (01 General Requirements, 03 Concrete, 06 Wood/Plastic, 09 Finishes, 22 Plumbing, 26 Electrical, 27 Communications, etc.). Look for: coding errors, expenses logged to wrong phases, mixed-item transactions that should be split, and personal/non-project expenses. Provide a corrected categorization with reasoning. Flag items that don't fit standard categories (rentals, permits, subs) for manual review. If expense description is vague, ask for clarification.`,
+            inputPlaceholder: `List recent expenses. Example: "Home Depot $523.47 (lumber, fasteners, paint), ABC Concrete $12,000 (concrete pour), Electrician Joe's Labor $8,500, Permit fee $1,200, Equipment rental $450/week."`,
+            inputLabel: 'Recent Expenses'
+          },
+          'expense-dashboard': {
+            systemPrompt: `You are a construction project accountant. Your job is to analyze project spend versus budget and flag overage risks. Compare current spend to estimate by phase/CSI division. Calculate variance ($ and %), identify phases over/under budget, and trend analysis (pace of spending relative to schedule). Flag: phases trending over budget, cumulative overage risk, and cost drivers. Provide variance breakdown by category and recommend corrective actions (adjust schedule, reduce scope, negotiate subs). If budget data is incomplete, ask for phase budgets or estimate detail.`,
+            inputPlaceholder: `Provide project budget and current spend. Example: "Budget: Framing $85k, MEP $65k, Finishes $120k, Total $270k. Current spend (60% complete): Framing $92k, MEP $58k, Finishes $68k. Actual duration: 14 weeks of 18-week schedule."`,
+            inputLabel: 'Budget vs. Current Spend'
+          },
+          'contacts-quotes': {
+            systemPrompt: `You are a construction procurement specialist. Your job is to evaluate and compare quotes from subcontractors and suppliers. Analyze each quote for: scope clarity (does it match your request?), pricing (unit rates, line items, total), lead time, terms (payment, insurance, warranty), and risk factors (contractor reputation, capacity, experience). Create a comparison table showing supplier, total price, timeline, insurance/bonding, and recommendation. Flag missing scope items, suspiciously low bids, or unrealistic timelines. Recommend the best option with reasoning. If quote detail is insufficient, ask for specifics (scope of work, payment schedule, warranty period).`,
+            inputPlaceholder: `Paste quotes from subs/suppliers. Example: "Quote A (Framing): $42,000, 4-week timeline, includes rough opening, $1M liability, no warranty. Quote B (Framing): $38,500, 5 weeks, needs payment plan, $2M liability, 1-year warranty on workmanship."`,
+            inputLabel: 'Quotes from Subs / Suppliers'
+          },
+          'co-cost-delta': {
+            systemPrompt: `You are a construction change order estimator. Your job is to estimate the cost impact of the described scope change. Break down the change into line items (materials, labor, equipment, fees) with pricing. Use industry rates or quotes where available. Calculate: added cost, deleted cost (if applicable), net change, and contingency buffer (10-15% for unknowns). Provide cost reasoning tied to scope details. Flag items requiring additional information (exact quantities, material specs, labor rates). Format as a clear cost breakdown suitable for a change order document.`,
+            inputPlaceholder: `Describe the scope change. Example: "Add 800 sf drywall and tape in basement. Existing schedule is packed, so add 1 week labor ($28/hr, 40 hrs/week). Upgrade kitchen countertop from laminate to granite."`,
+            inputLabel: 'Scope Change Description'
+          },
+          'co-schedule-impact': {
+            systemPrompt: `You are a construction project scheduler. Your job is to estimate the schedule impact of the described change. Assess: added work duration, affected phases, critical path impact, and ripple effects (delays to subsequent work). Provide impact in calendar days and identify new completion date. Analyze: can the change run parallel to existing work, or does it delay the critical path? Consider crew capacity and sequencing constraints. Flag activities at risk of schedule compression. If current schedule is vague, ask for phase durations and dependencies.`,
+            inputPlaceholder: `Describe the change and current schedule. Example: "Change: Add basement finishing (drywall, paint, flooring) estimated 3 weeks. Current schedule: Framing done Week 4, MEP done Week 6, finish work Week 6-10. Basement framing is already done."`,
+            inputLabel: 'Scope Change & Current Schedule'
+          },
+          'co-document': {
+            systemPrompt: `You are a construction change order scribe. Your job is to generate a formal change order document text based on the provided change details. Include: change order number, date, project name, contractor/owner info, detailed scope description, cost breakdown by line item (materials, labor, equipment, contingency), total cost, schedule impact (days added/subtracted), and signature/approval lines. Format as a professional document suitable for client signature. Use clear industry language and neutral tone. If project details are missing (contract number, owner name), ask for those specifics.`,
+            inputPlaceholder: `Provide change details: scope change description, cost breakdown, schedule impact, and project info. Example: "Project: Main St renovation. Scope: Add 800 sf drywall, paint, flooring to basement. Cost: Materials $8,500, Labor $14,000, Total $22,500. Schedule: Add 2 weeks. Owner: John Smith, ABC Company."`,
+            inputLabel: 'Change Details & Project Information'
+          },
+          'draw-calculate': {
+            systemPrompt: `You are a construction progress estimator. Your job is to estimate completion percentage by phase based on the described work status. Evaluate: physical progress (how much of each phase is done), quality (rework needed?), and scheduling (on-time or behind). Assign % complete to each major phase (Foundation, Framing, MEP, Drywall, Finishes, etc.). Provide reasoning tied to visible deliverables (e.g., "Framing 95% = all walls up, doors hung, roof sheathed, needs final details"). Flag any phases that appear overstated. If work description is vague, ask for specific deliverables completed.`,
+            inputPlaceholder: `Describe work completed. Example: "Foundation: slab poured and cured, all footings done. Framing: walls up, roof trusses on, sheathing 80% done. MEP: electrical roughed in basement, plumbing stubbed, HVAC ducts not yet installed."`,
+            inputLabel: 'Work Completed / Site Status'
+          },
+          'punch-detection': {
+            systemPrompt: `You are a construction punch-list specialist. Your job is to generate a detailed punch list from the provided site observations or photo descriptions. For each deficiency or incomplete item: describe what's wrong, identify which trade is responsible (framing, MEP, drywall, finishes), assign severity (Critical/Major/Minor based on safety, function, appearance), and recommend corrective action. Organize punch list by trade and severity. Use industry standard terminology. Flag items that may indicate larger issues (e.g., nail pops = settling/framing issue). If observations are vague, ask for specific locations and details.`,
+            inputPlaceholder: `Describe what you see in photos or during walkthrough. Example: "Interior: drywall has several nail pops in second-floor bedroom, caulk missing around kitchen window, electrical outlet loose in hallway. Exterior: paint inconsistency on north wall, gutters not hanging straight, one downspout disconnected."`,
+            inputLabel: 'Site Observations / Photo Descriptions'
+          }
+        };
+
+        // ============================================
         // XP & RANK SYSTEM
         // ============================================
 
@@ -2175,11 +2349,138 @@
         }
 
         // ============================================
+        // SETTINGS COMPONENT
+        // ============================================
+
+        function HeaderSettings() {
+            const [showSettings, setShowSettings] = useState(false);
+            const [apiUrl, setApiUrl] = useState(window.__BKG_API_URL__ || '');
+
+            const handleSave = () => {
+                window.__BKG_API_URL__ = apiUrl;
+                setShowSettings(false);
+            };
+
+            return (
+                <div style={{position: 'relative'}}>
+                    <button
+                        className="settings-gear"
+                        onClick={() => setShowSettings(!showSettings)}
+                    >
+                        ⚙️
+                    </button>
+                    {showSettings && (
+                        <div className="settings-dropdown">
+                            <label>AI Endpoint URL</label>
+                            <input
+                                type="text"
+                                placeholder="https://your-project.supabase.co/functions/v1/analyze"
+                                value={apiUrl}
+                                onChange={e => setApiUrl(e.target.value)}
+                            />
+                            <button className="settings-save-btn" onClick={handleSave}>
+                                Save
+                            </button>
+                            <div className="settings-note">
+                                Without an endpoint, analysis shows demo results
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        // ============================================
+        // TRADES DATA
+        // ============================================
+
+        const TRADES = [
+            { id: 'gc', emoji: '🏗️', name: 'General Contractor', desc: 'Full project oversight, all phases' },
+            { id: 'reno', emoji: '🔨', name: 'Renovation / Remodel', desc: 'Existing structures, upgrades, additions' },
+            { id: 'adu', emoji: '🏠', name: 'ADU / New Construction', desc: 'Accessory dwelling units, ground-up builds' },
+            { id: 'roof', emoji: '⛺', name: 'Roofing', desc: 'Residential & commercial roofing systems' },
+            { id: 'hvac', emoji: '🌡️', name: 'HVAC', desc: 'Heating, ventilation, air conditioning' },
+            { id: 'elec', emoji: '⚡', name: 'Electrician', desc: 'Electrical systems, panels, wiring' },
+            { id: 'plumb', emoji: '🔧', name: 'Plumbing', desc: 'Water, gas, drainage systems' },
+            { id: 'lv', emoji: '📡', name: 'Low Voltage / A-V', desc: 'Security, networking, audio-visual, smart home' },
+            { id: 'concrete', emoji: '🧱', name: 'Concrete & Foundation', desc: 'Foundations, flatwork, structural concrete' },
+            { id: 'paint', emoji: '🎨', name: 'Painting & Finishing', desc: 'Interior/exterior painting, coatings, finishes' },
+            { id: 'landscape', emoji: '🌿', name: 'Landscaping', desc: 'Hardscape, irrigation, outdoor structures' },
+            { id: 'frame', emoji: '🪵', name: 'Framing', desc: 'Structural framing, rough carpentry' },
+        ];
+
+        // ============================================
+        // TRADE SELECTION COMPONENT
+        // ============================================
+
+        function TradeSelection({ onTradeAndStateSelected }) {
+            const [tempTrade, setTempTrade] = useState(null);
+            const [tempState, setTempState] = useState('');
+
+            const handleContinue = () => {
+                if (tempTrade && tempState) {
+                    onTradeAndStateSelected(tempTrade, tempState);
+                }
+            };
+
+            return (
+                <div className="trade-select">
+                    <div className="trade-select-content">
+                        <h1 style={{marginBottom: '8px'}}>What's your trade?</h1>
+                        <p style={{marginBottom: '40px', fontSize: '16px', color: 'var(--ink-light)'}}>
+                            This personalizes your quests, code lookups, and AI analysis
+                        </p>
+
+                        <div className="trade-grid">
+                            {TRADES.map(trade => (
+                                <div
+                                    key={trade.id}
+                                    className={`trade-card ${tempTrade?.id === trade.id ? 'selected' : ''}`}
+                                    onClick={() => setTempTrade(trade)}
+                                >
+                                    <div className="trade-card-emoji">{trade.emoji}</div>
+                                    <div className="trade-card-name">{trade.name}</div>
+                                    <div className="trade-card-desc">{trade.desc}</div>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="state-selector">
+                            <label style={{display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600', color: 'var(--ink)'}}>
+                                Select your state
+                            </label>
+                            <select
+                                className="state-selector select"
+                                value={tempState}
+                                onChange={e => setTempState(e.target.value)}
+                            >
+                                <option value="">-- Select State --</option>
+                                {['AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'].map(s => (
+                                    <option key={s} value={s}>{s}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <button
+                            className="trade-cta"
+                            onClick={handleContinue}
+                            disabled={!tempTrade || !tempState}
+                        >
+                            Enter Command Center →
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+
+        // ============================================
         // MAIN APP
         // ============================================
 
         function App() {
             const [showHomepage, setShowHomepage] = useState(true);
+            const [selectedTrade, setSelectedTrade] = useState(null);
+            const [selectedState, setSelectedState] = useState('');
             const [projects, setProjects] = useState([
                 {
                     id: 'proj-default',
@@ -2350,6 +2651,15 @@
                 return <Homepage onStart={() => setShowHomepage(false)} />;
             }
 
+            if (!selectedTrade) {
+                return <TradeSelection onTradeAndStateSelected={(trade, state) => {
+                    setSelectedTrade(trade);
+                    setSelectedState(state);
+                    window.__BKG_TRADE__ = trade.name;
+                    window.__BKG_STATE__ = state;
+                }} />;
+            }
+
             return (
                 <div className="app-container">
                     {/* Header */}
@@ -2393,8 +2703,14 @@
                                 </div>
                                 <span>{overallCompletionPercent}%</span>
                             </div>
+                            {selectedTrade && (
+                                <div className="trade-badge">
+                                    {selectedTrade.emoji} {selectedTrade.name} • {selectedState}
+                                </div>
+                            )}
                             <div className="xp-badge">{totalXP} XP</div>
                             <div className="rank-badge">{rank}</div>
+                            <HeaderSettings />
                         </div>
                     </div>
 
@@ -2558,6 +2874,115 @@
                             onComplete={() => onComplete()}
                         />
                     </div>
+                </div>
+            );
+        }
+
+        // ============================================
+        // ANALYSIS STEP COMPONENT
+        // ============================================
+
+        function AnalysisStep({ step, stepState, onInputChange, onComplete }) {
+            const [aiInput, setAiInput] = useState(stepState.aiInput || '');
+            const [aiResult, setAiResult] = useState(stepState.aiResult || '');
+            const [aiLoading, setAiLoading] = useState(false);
+            const [aiError, setAiError] = useState('');
+
+            const promptConfig = ANALYSIS_PROMPTS[step.promptId] || {};
+
+            const runRealAnalysis = async () => {
+                const apiUrl = window.__BKG_API_URL__;
+                if (!apiUrl) {
+                    // Mock fallback
+                    setAiLoading(true);
+                    setTimeout(() => {
+                        setAiResult(step.analysisResult || 'Analysis complete. Connect AI for real results.');
+                        setAiLoading(false);
+                        onComplete();
+                    }, 1500);
+                    return;
+                }
+
+                setAiLoading(true);
+                setAiError('');
+                try {
+                    const tradeContext = window.__BKG_TRADE__ ? `\nThe contractor's trade is: ${window.__BKG_TRADE__}. The contractor is in: ${window.__BKG_STATE__ || 'unknown state'}. Tailor your analysis to their specific trade context.` : '';
+
+                    const resp = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            systemPrompt: (promptConfig.systemPrompt || step.analysisTitle || 'You are a construction analysis AI.') + tradeContext,
+                            userMessage: aiInput,
+                            analysisType: step.promptId || 'general',
+                        }),
+                    });
+                    const data = await resp.json();
+                    if (data.error) throw new Error(data.error);
+                    setAiResult(data.result);
+                    onInputChange(data.result);
+                    onComplete();
+                } catch (err) {
+                    setAiError('AI unavailable. Showing demo result.');
+                    setAiResult(step.analysisResult || 'Connect AI endpoint for real analysis.');
+                    onComplete();
+                } finally {
+                    setAiLoading(false);
+                }
+            };
+
+            return (
+                <div className="step-input-group">
+                    <label className="step-input-label" style={{marginBottom: '8px', display: 'block'}}>
+                        {promptConfig.inputLabel || 'Provide context for analysis'}
+                    </label>
+                    <textarea
+                        className="step-textarea"
+                        placeholder={promptConfig.inputPlaceholder || step.analysisTitle || 'Describe what you want analyzed...'}
+                        value={aiInput}
+                        onChange={e => {
+                            setAiInput(e.target.value);
+                            onInputChange(e.target.value);
+                        }}
+                        style={{marginBottom: '12px', minHeight: '100px'}}
+                    />
+
+                    {!aiResult && !aiLoading && (
+                        <button
+                            className="run-analysis-btn"
+                            onClick={runRealAnalysis}
+                            disabled={aiInput.trim().length < 5}
+                            style={{opacity: aiInput.trim().length < 5 ? 0.5 : 1}}
+                        >
+                            🔍 Run AI Analysis
+                        </button>
+                    )}
+
+                    {aiLoading && (
+                        <div className="analysis-loading">
+                            <div className="spinner"></div>
+                            <span>Analyzing with AI…</span>
+                        </div>
+                    )}
+
+                    {aiError && (
+                        <div style={{fontSize: '12px', color: 'var(--yellow)', marginBottom: '8px', fontStyle: 'italic'}}>
+                            {aiError}
+                        </div>
+                    )}
+
+                    {aiResult && !aiLoading && (
+                        <div className="analysis-result-box">
+                            <div className="analysis-title">{step.analysisTitle || 'Analysis Result'}</div>
+                            <div className="analysis-result-text" style={{whiteSpace: 'pre-wrap'}}>{aiResult}</div>
+                            <button
+                                style={{marginTop: '12px', background: 'var(--border)', border: 'none', borderRadius: '4px', padding: '6px 12px', fontSize: '12px', cursor: 'pointer'}}
+                                onClick={() => { setAiResult(''); setAiError(''); }}
+                            >
+                                Re-run Analysis
+                            </button>
+                        </div>
+                    )}
                 </div>
             );
         }
@@ -2794,25 +3219,7 @@
                     );
 
                 case 'analysis_result':
-                    return (
-                        <div className="step-input-group">
-                            {!analysisRunning && !analysisShown ? (
-                                <button className="run-analysis-btn" onClick={runAnalysis}>
-                                    Run Analysis
-                                </button>
-                            ) : analysisRunning ? (
-                                <div className="analysis-loading">
-                                    <div className="spinner"></div>
-                                    <span>Analyzing…</span>
-                                </div>
-                            ) : (
-                                <div className="analysis-result-box">
-                                    <div className="analysis-title">{step.analysisTitle}</div>
-                                    <div className="analysis-result-text">{step.analysisResult}</div>
-                                </div>
-                            )}
-                        </div>
-                    );
+                    return <AnalysisStep step={step} stepState={stepState} onInputChange={onInputChange} onComplete={onComplete} />;
 
                 case 'checklist':
                     return (
